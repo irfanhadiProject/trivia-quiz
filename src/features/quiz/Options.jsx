@@ -10,11 +10,11 @@ function Options({ answer, selected, correctAnswer, onSelect }) {
 
   return (
     <button
-      className={`px-3 py-2 w-full max-w-sm text-white text-md font-semibold rounded ${
+      className={`px-3 py-2 w-full max-w-sm text-white text-sm font-semibold rounded ${
         selected
           ? 'cursor-not-allowed pointer-events-none'
           : 'hover:bg-gray-800'
-      } ${bgColor}`}
+      } ${bgColor} md:text-base`}
       onClick={() => onSelect(answer)}
       disabled={selected !== null}
     >

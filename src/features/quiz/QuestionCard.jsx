@@ -9,9 +9,8 @@ function QuestionCard() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [selected, setSelected] = useState(null);
-  const { questions, currentQuestionIndex, quizFinished } = useSelector(
-    (state) => state.quiz
-  );
+  const { questions, currentQuestionIndex, currentLanguage, quizFinished } =
+    useSelector((state) => state.quiz);
   const currentQuestion = questions[currentQuestionIndex];
 
   useEffect(() => {
@@ -23,16 +22,19 @@ function QuestionCard() {
   const answers = useMemo(() => {
     if (!currentQuestion) return [];
 
-    return [
-      currentQuestion.correct_answer,
-      ...currentQuestion.incorrect_answers,
-    ].sort(() => Math.random() - 0.5);
-  }, [currentQuestion]);
+    const options = [
+      currentQuestion.correct_answer[currentLanguage],
+      ...currentQuestion.incorrect_answers.map((ans) => ans[currentLanguage]),
+    ];
+
+    return options.sort(() => Math.random() - 0.5);
+  }, [currentQuestion, currentLanguage]);
 
   function handleAnswer(selectedAnswer) {
     setSelected(selectedAnswer);
 
-    const isCorrect = selectedAnswer === currentQuestion.correct_answer;
+    const isCorrect =
+      selectedAnswer === currentQuestion.correct_answer[currentLanguage];
 
     if (isCorrect) dispatch(incrementScore());
 
@@ -56,19 +58,15 @@ function QuestionCard() {
 
   return (
     <div className="w-3/4">
-      <span className="text-sm bg-green-600 rounded-full px-3 py-1 md:text-base">
-        Soal {currentQuestionIndex + 1} dari {questions.length}
-      </span>
-
-      <h3 className=" text-md my-5 p-2 md:text-lg md:p-4 lg:text-2xl">
-        {decodeHTML(currentQuestion.question)}
+      <h3 className=" text-md mb-5 px-2 pb-2 md:text-lg md:px-4 md:pb-4 lg:text-2xl">
+        {decodeHTML(currentQuestion.question[currentLanguage])}
       </h3>
       <div className="flex flex-col items-center space-y-3">
         {answers.map((answer, idx) => (
           <Options
             answer={answer}
             key={idx}
-            correctAnswer={currentQuestion.correct_answer}
+            correctAnswer={currentQuestion.correct_answer[currentLanguage]}
             selected={selected}
             onSelect={handleAnswer}
           />
