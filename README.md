@@ -41,5 +41,4 @@ npm instal
 npm start
 ```
 
-- 🌐 Demo
-- 🔗 Live Demo
+- 🔗 [Live Demo](https://brain-bits.netlify.app/)
