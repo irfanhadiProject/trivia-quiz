@@ -51,8 +51,6 @@ export const fetchQuestions = createAsyncThunk(
         };
       });
 
-      console.log(translatedQuestions);
-
       return translatedQuestions;
     } catch (err) {
       console.error(err);
@@ -76,6 +74,7 @@ const initialState = {
     difficulty: 'medium',
     numberOfQuestions: 10,
   },
+  hasFetched: false,
   quizFinished: false,
 };
 
@@ -119,6 +118,7 @@ const quizSlice = createSlice({
       .addCase(fetchQuestions.fulfilled, (state, action) => {
         state.loading = false;
         state.questions = action.payload;
+        state.hasFetched = true;
       })
       .addCase(fetchQuestions.rejected, (state, action) => {
         state.loading = false;

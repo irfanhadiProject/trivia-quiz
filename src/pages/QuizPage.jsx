@@ -7,26 +7,24 @@ import Error from '../ui/Error';
 
 function QuizPage() {
   const dispatch = useDispatch();
-  const { questions, loading, error, currentQuestionIndex } = useSelector(
-    (state) => state.quiz
-  );
+  const { questions, hasFetched, loading, error, currentQuestionIndex } =
+    useSelector((state) => state.quiz);
   const quizSettings = useSelector((state) => state.quiz.quizSettings);
   const [timeLeft, setTimeLeft] = useState(20);
 
   const { numberOfQuestions: amount, category, difficulty } = quizSettings;
 
   useEffect(() => {
-    if (questions.length === 0) {
+    if (!hasFetched) {
       dispatch(fetchQuestions({ amount, category, difficulty }));
     }
-  }, [dispatch, amount, category, difficulty, questions.length]);
+  }, [dispatch, amount, category, difficulty, hasFetched]);
 
   useEffect(() => {
     setTimeLeft(20);
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
-          clearInterval(timer);
           dispatch(nextQuestion());
           return 0;
         }

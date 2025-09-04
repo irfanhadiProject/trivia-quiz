@@ -1,23 +1,27 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { decodeHTML } from '../../utils/helper.js';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { answerQuestion, incrementScore, nextQuestion } from './quizSlice.js';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import Options from './Options.jsx';
 
 function QuestionCard() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
+  const timerRef = useRef(null);
   const [selected, setSelected] = useState(null);
+
   const { questions, currentQuestionIndex, currentLanguage, quizFinished } =
     useSelector((state) => state.quiz);
+
   const currentQuestion = questions[currentQuestionIndex];
 
   useEffect(() => {
-    if (quizFinished) {
-      navigate('/result');
+    if (quizFinished && location.pathname !== '/result') {
+      navigate('/result', { replace: true });
     }
-  }, [quizFinished, navigate]);
+  }, [quizFinished, navigate, location]);
 
   const answers = useMemo(() => {
     if (!currentQuestion) return [];
@@ -27,7 +31,12 @@ function QuestionCard() {
       ...currentQuestion.incorrect_answers.map((ans) => ans[currentLanguage]),
     ];
 
-    return options.sort(() => Math.random() - 0.5);
+    const shuffled = [...options];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
   }, [currentQuestion, currentLanguage]);
 
   function handleAnswer(selectedAnswer) {
@@ -46,11 +55,19 @@ function QuestionCard() {
       })
     );
 
-    setTimeout(() => {
+    if (timerRef.current) clearTimeout(timerRef.current);
+
+    timerRef.current = setTimeout(() => {
       setSelected(null);
       dispatch(nextQuestion());
     }, 1000);
   }
+
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, []);
 
   if (!questions.length) return <p>Tidak ada soal</p>;
 
